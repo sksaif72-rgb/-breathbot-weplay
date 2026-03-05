@@ -1,23 +1,23 @@
-async def predict(rows):
+import asyncio
 
-    right = {}
-    left = {}
+from aiogram import Bot, Dispatcher
 
-    for r in rows:
+from bot.config import BOT_TOKEN
+from bot.database import connect
 
-        rr = r["right_result"]
-        ll = r["left_result"]
+from handlers import start
 
-        right[rr] = right.get(rr,0)+1
-        left[ll] = left.get(ll,0)+1
+bot = Bot(BOT_TOKEN)
 
-    if not right:
-        return ("زوجين",50),("لاشيء",50)
+dp = Dispatcher()
 
-    best_r = max(right,key=right.get)
-    best_l = max(left,key=left.get)
+dp.include_router(start.router)
 
-    pr = int(right[best_r]/len(rows)*100)
-    pl = int(left[best_l]/len(rows)*100)
+async def main():
 
-    return (best_r,pr),(best_l,pl)
+    await connect()
+
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
