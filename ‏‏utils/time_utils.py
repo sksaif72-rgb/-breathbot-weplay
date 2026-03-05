@@ -1,7 +1,4 @@
-from bot.database import pool
-
-
-async def best_minute(result):
+async def best_minute_for_result(result):
 
     async with pool.acquire() as conn:
 
