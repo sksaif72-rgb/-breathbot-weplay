@@ -1,23 +1,51 @@
-async def predict(rows):
+from bot.database import pool
 
-    right = {}
-    left = {}
+right_moves = [
+"زوجين",
+"متتالية",
+"ثلاثة",
+"فل هاوس",
+"اربعة"
+]
 
-    for r in rows:
+left_moves = [
+"زوج",
+"متتالية نفس النوع",
+"AA",
+"زوج و متتالية",
+"لاشيء"
+]
 
-        rr = r["right_result"]
-        ll = r["left_result"]
 
-        right[rr] = right.get(rr,0)+1
-        left[ll] = left.get(ll,0)+1
+async def predict_move(card, type_):
 
-    if not right:
-        return ("زوجين",50),("لاشيء",50)
+    async with pool.acquire() as conn:
 
-    best_r = max(right,key=right.get)
-    best_l = max(left,key=left.get)
+        rows = await conn.fetch(
+            """
+            SELECT right_result, COUNT(*) as c
+            FROM training_data
+            WHERE card=$1 AND type=$2
+            GROUP BY right_result
+            ORDER BY c DESC
+            """,
+            card,
+            type_
+        )
 
-    pr = int(right[best_r]/len(rows)*100)
-    pl = int(left[best_l]/len(rows)*100)
+        if not rows:
+            return {
+                "result": "لا توجد بيانات",
+                "prob": 0
+            }
 
-    return (best_r,pr),(best_l,pl)
+        best = rows[0]
+
+        total = sum(r["c"] for r in rows)
+
+        probability = round((best["c"]/total)*100,2)
+
+        return {
+            "result": best["right_result"],
+            "prob": probability
+        }
