@@ -1,20 +1,5 @@
 from bot.database import pool
-
-right_moves = [
-"زوجين",
-"متتالية",
-"ثلاثة",
-"فل هاوس",
-"اربعة"
-]
-
-left_moves = [
-"زوج",
-"متتالية نفس النوع",
-"AA",
-"زوج و متتالية",
-"لاشيء"
-]
+from ai.montecarlo import monte_carlo_simulation
 
 
 async def predict_move(card, type_):
@@ -27,25 +12,38 @@ async def predict_move(card, type_):
             FROM training_data
             WHERE card=$1 AND type=$2
             GROUP BY right_result
-            ORDER BY c DESC
             """,
             card,
             type_
         )
 
         if not rows:
+
+            mc_result, mc_prob = monte_carlo_simulation()
+
             return {
-                "result": "لا توجد بيانات",
-                "prob": 0
+                "result": mc_result,
+                "prob": mc_prob
             }
 
-        best = rows[0]
+        stats = {}
 
-        total = sum(r["c"] for r in rows)
+        total = 0
 
-        probability = round((best["c"]/total)*100,2)
+        for r in rows:
+
+            stats[r["right_result"]] = r["c"]
+            total += r["c"]
+
+        best = max(stats, key=stats.get)
+
+        prob = round((stats[best] / total) * 100, 2)
+
+        mc_result, mc_prob = monte_carlo_simulation()
+
+        final_prob = round((prob + mc_prob) / 2, 2)
 
         return {
-            "result": best["right_result"],
-            "prob": probability
+            "result": best,
+            "prob": final_prob
         }
