@@ -1,11 +1,24 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-menu = ReplyKeyboardMarkup(
-keyboard=[
-[KeyboardButton(text="بدء التخمين")],
-[KeyboardButton(text="الاحصائيات")],
-[KeyboardButton(text="حسابي")],
-[KeyboardButton(text="تواصل مع الدعم")]
-],
-resize_keyboard=True
-)
+
+def main_menu():
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+
+            [
+                InlineKeyboardButton(
+                    text="بدء التخمين",
+                    callback_data="start_guess"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="الاحصائيات",
+                    callback_data="stats"
+                )
+            ]
+
+        ]
+    )
