@@ -1,31 +1,19 @@
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
-
-from bot.config import ADMIN_ID
-from bot.database import pool
+from telegram import Update
+from telegram.ext import ContextTypes, MessageHandler, filters
 
 
-async def broadcast(message: types.Message):
+async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if message.from_user.id != ADMIN_ID:
+    if update.message.text != "admin":
         return
 
-    text = message.get_args()
-
-    async with pool.acquire() as conn:
-        users = await conn.fetch("SELECT user_id FROM users")
-
-    for u in users:
-
-        try:
-            await message.bot.send_message(u["user_id"], text)
-        except:
-            pass
+    await update.message.reply_text(
+        "لوحة الادمن"
+    )
 
 
-def register(dp: Dispatcher):
+def register(application):
 
-    dp.register_message_handler(
-        broadcast,
-        commands=["broadcast"]
+    application.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, admin)
     )
