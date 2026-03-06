@@ -1,49 +1,34 @@
-from aiogram import Router
-from aiogram.types import CallbackQuery
+from aiogram import types
+from aiogram.dispatcher import Dispatcher
 
-from keyboards.cards import cards_keyboard, type_keyboard
-from ai.predictor import predict_move
-
-router = Router()
-
-user_state = {}
+from ai.predictor import predict
 
 
-@router.callback_query(lambda c: c.data == "start_guess")
-async def start_guess(callback: CallbackQuery):
+async def guess(message: types.Message):
 
-    await callback.message.answer(
-        "اختر الورقة",
-        reply_markup=cards_keyboard()
+    await message.answer("اكتب الورقة مثال:\n7 قلب")
+
+
+async def process_guess(message: types.Message):
+
+    data = message.text.split()
+
+    if len(data) != 2:
+        return
+
+    card = data[0]
+    suit = data[1]
+
+    result = await predict(card, suit)
+
+    await message.answer(f"التخمين: {result}")
+
+
+def register(dp: Dispatcher):
+
+    dp.register_message_handler(
+        guess,
+        lambda m: m.text == "🎯 تخمين"
     )
 
-
-@router.callback_query(lambda c: c.data.startswith("card_"))
-async def choose_card(callback: CallbackQuery):
-
-    card = callback.data.split("_")[1]
-
-    user_state[callback.from_user.id] = {"card": card}
-
-    await callback.message.answer(
-        "اختر نوع الورقة",
-        reply_markup=type_keyboard()
-    )
-
-
-@router.callback_query(lambda c: c.data.startswith("type_"))
-async def choose_type(callback: CallbackQuery):
-
-    t = callback.data.split("_")[1]
-
-    user_state[callback.from_user.id]["type"] = t
-
-    card = user_state[callback.from_user.id]["card"]
-
-    prediction = await predict_move(card, t)
-
-    await callback.message.answer(
-        f"التخمين المتوقع:\n\n"
-        f"{prediction['result']}\n\n"
-        f"النسبة: {prediction['prob']}%"
-    )
+    dp.register_message_handler(process_guess)
