@@ -1,44 +1,37 @@
-from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import ReplyKeyboardMarkup
 
 
-# القائمة الرئيسية
 def main_menu_keyboard():
     keyboard = [
         ["🎯 بدء التخمين"],
         ["📊 الاحصائيات"],
         ["🧠 وضع التدريب"]
     ]
-
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
-# اختيار رقم الورقة
-def card_number_keyboard():
-
-    numbers = [
+# أرقام الأوراق
+def card_numbers():
+    keyboard = [
         ["A", "2", "3", "4"],
         ["5", "6", "7", "8"],
         ["9", "10", "J", "Q"],
         ["K"]
     ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
-    return ReplyKeyboardMarkup(numbers, resize_keyboard=True)
 
-
-# اختيار نوع الورقة
-def card_type_keyboard():
-
-    types = [
+# أنواع الورق
+def card_types():
+    keyboard = [
         ["♠️ سنك", "♥️ قلب"],
         ["♦️ دينار", "♣️ ماجة"]
     ]
-
-    return ReplyKeyboardMarkup(types, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
 # ضربات اليمين
-def right_hits_keyboard():
-
+def right_attacks():
     keyboard = [
         ["زوجين"],
         ["متتالية"],
@@ -46,13 +39,11 @@ def right_hits_keyboard():
         ["فل هاوس"],
         ["اربعة"]
     ]
-
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
-# ضربات اليسار (وضع التدريب)
-def left_hits_keyboard():
-
+# ضربات اليسار
+def left_attacks():
     keyboard = [
         ["زوج"],
         ["متتالية نفس النوع"],
@@ -60,5 +51,4 @@ def left_hits_keyboard():
         ["زوج + متتالية"],
         ["لاشيء"]
     ]
-
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
