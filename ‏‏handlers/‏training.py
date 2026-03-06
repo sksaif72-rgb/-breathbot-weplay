@@ -1,123 +1,49 @@
-from aiogram import Router
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram import types
+from aiogram.dispatcher import Dispatcher
 
-from bot.database import pool
+from bot.config import TRAINING_CODE
+from bot.database import add_training
+from keyboards.menus import training_menu
 
-from keyboards.training import (
-    training_cards_keyboard,
-    training_types_keyboard,
-    right_results_keyboard,
-    left_results_keyboard
-)
-
-router = Router()
-
-trainer_state = {}
+import datetime
 
 
-async def is_trainer(user_id):
+async def enter_training(message: types.Message):
 
-    async with pool.acquire() as conn:
+    if message.text == TRAINING_CODE:
 
-        row = await conn.fetchrow(
-            "SELECT * FROM trainers WHERE telegram_id=$1",
-            user_id
+        await message.answer(
+            "تم الدخول لوضع التدريب",
+            reply_markup=training_menu()
         )
 
-    return row is not None
+
+async def save_training(message: types.Message):
+
+    hand = message.text
+
+    minute = datetime.datetime.now().minute
+
+    card = "unknown"
+    suit = "unknown"
+
+    await add_training(card, suit, hand, minute)
+
+    await message.answer("تم حفظ التدريب")
 
 
-@router.message(Command("training"))
-async def start_training(message: Message):
+def register(dp: Dispatcher):
 
-    if not await is_trainer(message.from_user.id):
+    dp.register_message_handler(enter_training)
 
-        await message.answer("هذا الوضع للمدربين فقط")
-        return
-
-    trainer_state[message.from_user.id] = {}
-
-    await message.answer(
-        "اختر الورقة",
-        reply_markup=training_cards_keyboard()
+    dp.register_message_handler(
+        save_training,
+        lambda m: m.text in [
+            "AA",
+            "اربعة",
+            "فل هاوس",
+            "زوج",
+            "متتالية",
+            "لا شيء"
+        ]
     )
-
-
-@router.callback_query(lambda c: c.data.startswith("tcard_"))
-async def choose_card(callback: CallbackQuery):
-
-    card = callback.data.split("_")[1]
-
-    trainer_state[callback.from_user.id]["card"] = card
-
-    await callback.message.answer(
-        "اختر نوع الورقة",
-        reply_markup=training_types_keyboard()
-    )
-
-
-@router.callback_query(lambda c: c.data.startswith("ttype_"))
-async def choose_type(callback: CallbackQuery):
-
-    type_ = callback.data.split("_")[1]
-
-    trainer_state[callback.from_user.id]["type"] = type_
-
-    await callback.message.answer(
-        "ماذا ضرب في اليمين؟",
-        reply_markup=right_results_keyboard()
-    )
-
-
-@router.callback_query(lambda c: c.data.startswith("right_"))
-async def choose_right(callback: CallbackQuery):
-
-    right = callback.data.split("_",1)[1]
-
-    trainer_state[callback.from_user.id]["right"] = right
-
-    await callback.message.answer(
-        "ماذا ضرب في اليسار؟",
-        reply_markup=left_results_keyboard()
-    )
-
-
-@router.callback_query(lambda c: c.data.startswith("left_"))
-async def choose_left(callback: CallbackQuery):
-
-    left = callback.data.split("_",1)[1]
-
-    data = trainer_state[callback.from_user.id]
-
-    card = data["card"]
-    type_ = data["type"]
-    right = data["right"]
-
-    from datetime import datetime
-    import pytz
-
-    riyadh = pytz.timezone("Asia/Riyadh")
-
-    minute = datetime.now(riyadh).minute
-
-    async with pool.acquire() as conn:
-
-        await conn.execute(
-            """
-            INSERT INTO training_data
-            (card,type,minute,right_result,left_result)
-            VALUES($1,$2,$3,$4,$5)
-            """,
-            card,
-            type_,
-            minute,
-            right,
-            left
-        )
-
-    await callback.message.answer(
-        "تم حفظ التدريب ✅"
-    )
-
-    trainer_state.pop(callback.from_user.id, None)
