@@ -1,49 +1,19 @@
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
-
-from bot.config import TRAINING_CODE
-from bot.database import add_training
-from bot.keyboards.menus import training_menu
-
-import datetime
+from telegram import Update
+from telegram.ext import ContextTypes, MessageHandler, filters
 
 
-async def enter_training(message: types.Message):
+async def training(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if message.text == TRAINING_CODE:
+    if update.message.text != "🎓 وضع التدريب":
+        return
 
-        await message.answer(
-            "تم الدخول لوضع التدريب",
-            reply_markup=training_menu()
-        )
-
-
-async def save_training(message: types.Message):
-
-    hand = message.text
-
-    minute = datetime.datetime.now().minute
-
-    card = "unknown"
-    suit = "unknown"
-
-    await add_training(card, suit, hand, minute)
-
-    await message.answer("تم حفظ التدريب")
+    await update.message.reply_text(
+        "وضع التدريب مفعل"
+    )
 
 
-def register(dp: Dispatcher):
+def register(application):
 
-    dp.register_message_handler(enter_training)
-
-    dp.register_message_handler(
-        save_training,
-        lambda m: m.text in [
-            "AA",
-            "اربعة",
-            "فل هاوس",
-            "زوج",
-            "متتالية",
-            "لا شيء"
-        ]
+    application.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, training)
     )
