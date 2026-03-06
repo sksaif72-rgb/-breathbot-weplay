@@ -1,7 +1,6 @@
-aiogram==2.25.1
-asyncpg
-python-dotenv
-pytz
-aiohttp
 python-telegram-bot==20.7
-flask
+psycopg2-binary==2.9.9
+flask==3.0.3
+python-dotenv==1.0.1
+numpy==1.26.4
+pytz==2024.1
