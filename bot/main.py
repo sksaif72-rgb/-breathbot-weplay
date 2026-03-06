@@ -1,37 +1,30 @@
-import logging
-
 from telegram.ext import ApplicationBuilder
 
 from bot.config import BOT_TOKEN
-from bot.handlers import start, guess, training, stats, admin
+
+from bot.handlers import start
+from bot.handlers import guess
+from bot.handlers import training
+from bot.handlers import stats
+from bot.handlers import admin
 
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
+async def main():
 
-logger = logging.getLogger(__name__)
-
-
-def main():
-    print("Starting bot...")
-
-    # إنشاء التطبيق
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # تسجيل الهاندلرز
-    application.add_handler(start.start_handler)
-    application.add_handler(guess.guess_handler)
-    application.add_handler(training.training_handler)
-    application.add_handler(stats.stats_handler)
-    application.add_handler(admin.admin_handler)
+    start.register(application)
+    guess.register(application)
+    training.register(application)
+    stats.register(application)
+    admin.register(application)
 
-    print("Bot is running...")
-    
-    # تشغيل البوت
-    application.run_polling()
+    print("BREATHBOT-Weplay started")
+
+    await application.run_polling()
 
 
 if __name__ == "__main__":
-    main()
+
+    import asyncio
+    asyncio.run(main())
