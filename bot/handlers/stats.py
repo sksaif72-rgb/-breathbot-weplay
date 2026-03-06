@@ -1,34 +1,19 @@
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
-
-from bot.database import get_stats
+from telegram import Update
+from telegram.ext import ContextTypes, MessageHandler, filters
 
 
-async def stats(message: types.Message):
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    await message.answer("اكتب رقم الورقة مثال: 7")
+    if update.message.text != "📊 احصائيات":
+        return
 
-
-async def stats_card(message: types.Message):
-
-    card = message.text
-
-    rows = await get_stats(card)
-
-    text = "📊 الاحصائيات\n\n"
-
-    for r in rows:
-
-        text += f"{r['suit']} - {r['hand_type']} : {r['c']}\n"
-
-    await message.answer(text)
-
-
-def register(dp: Dispatcher):
-
-    dp.register_message_handler(
-        stats,
-        lambda m: m.text == "📊 احصائيات"
+    await update.message.reply_text(
+        "لوحة الاحصائيات"
     )
 
-    dp.register_message_handler(stats_card)
+
+def register(application):
+
+    application.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, stats)
+    )
