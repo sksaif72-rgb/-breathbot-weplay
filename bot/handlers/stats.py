@@ -1,19 +1,28 @@
-from telegram import Update
-from telegram.ext import ContextTypes, MessageHandler, filters
+from telegram.ext import CommandHandler
+from bot.database import get_card_stats
 
 
-async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+def stats_command(update, context):
+    update.message.reply_text("📊 ارسل رقم الورقة لمعرفة الاحصائيات (مثال: 7)")
 
-    if update.message.text != "📊 احصائيات":
+
+def card_stats(update, context):
+    card = update.message.text
+
+    stats = get_card_stats(card)
+
+    if not stats:
+        update.message.reply_text("لا توجد بيانات لهذا الرقم بعد.")
         return
 
-    await update.message.reply_text(
-        "لوحة الاحصائيات"
-    )
+    text = f"📊 احصائيات الورقة {card}\n\n"
+
+    for row in stats:
+        text += f"{row['type']} → {row['right_attack']} ({row['count']} مرة)\n"
+
+    update.message.reply_text(text)
 
 
-def register(application):
+def register_stats_handlers(dispatcher):
 
-    application.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, stats)
-    )
+    dispatcher.add_handler(CommandHandler("stats", stats_command))
