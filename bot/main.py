@@ -48,7 +48,10 @@ async def start_web_server():
 async def on_startup(dp):
 
     print("Connecting database...")
-    await connect_db()
+    from bot.database import connect_db, create_tables
+
+await connect_db()
+await create_tables()
 
     print("Starting web server...")
     asyncio.create_task(start_web_server())
