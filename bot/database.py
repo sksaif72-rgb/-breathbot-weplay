@@ -34,3 +34,15 @@ async def get_user(user_id):
             "SELECT * FROM users WHERE user_id=$1",
             user_id
         )
+async def create_tables():
+
+    async with pool.acquire() as conn:
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users(
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT UNIQUE
+            );
+            """
+        )
