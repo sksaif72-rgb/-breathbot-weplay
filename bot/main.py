@@ -65,12 +65,11 @@ async def on_startup(dp):
 # REGISTER HANDLERS
 # -----------------------
 
-start.router.register(dp)
-guess.router.register(dp)
-training.router.register(dp)
-stats.router.register(dp)
-admin.router.register(dp)
-
+dp.include_router(start.router)
+dp.include_router(guess.router)
+dp.include_router(training.router)
+dp.include_router(stats.router)
+dp.include_router(admin.router)
 
 # -----------------------
 # MAIN
