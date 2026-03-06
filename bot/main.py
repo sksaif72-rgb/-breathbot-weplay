@@ -10,12 +10,7 @@ from aiohttp import web
 from bot.config import BOT_TOKEN
 from bot.database import connect_db
 
-import handlers.start as start
-import handlers.guess as guess
-import handlers.training as training
-import handlers.stats as stats
-import handlers.admin as admin
-
+from bot.handlers import start, guess, training, stats, admin
 
 logging.basicConfig(level=logging.INFO)
 
