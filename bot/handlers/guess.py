@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import Dispatcher
 
-from ai.predictor import predict
+from bot.ai.predictor import predict
 
 
 async def guess(message: types.Message):
