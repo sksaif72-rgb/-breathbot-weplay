@@ -1,50 +1,34 @@
 import asyncio
-import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.utils import executor
 
-from bot.config import BOT_TOKEN
-from bot.database import connect_db, create_tables
+from .config import BOT_TOKEN
+from .database import connect
 
-from handlers import start
-from handlers import guess
-from handlers import training
-from handlers import stats
-from handlers import admin
-
-from bot.scheduler import start_scheduler
+from handlers import start, guess, training, stats, admin
 
 
-async def main():
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-    logging.basicConfig(level=logging.INFO)
 
-    bot = Bot(token=BOT_TOKEN)
+async def on_startup(dp):
 
-    dp = Dispatcher()
+    await connect()
 
-    # تسجيل الهاندلرز
-    dp.include_router(start.router)
-    dp.include_router(guess.router)
-    dp.include_router(training.router)
-    dp.include_router(stats.router)
-    dp.include_router(admin.router)
+    start.register(dp)
+    guess.register(dp)
+    training.register(dp)
+    stats.register(dp)
+    admin.register(dp)
 
-    # الاتصال بقاعدة البيانات
-    await connect_db()
-
-    # إنشاء الجداول اذا لم تكن موجودة
-    await create_tables()
-
-    print("BREATHBOT-Weplay started")
-
-    # تشغيل Scheduler
-    start_scheduler(bot)
-
-    # تشغيل البوت
-    await dp.start_polling(bot)
+    print("BOT STARTED")
 
 
 if __name__ == "__main__":
 
-    asyncio.run(main())
+    executor.start_polling(
+        dp,
+        on_startup=on_startup
+    )
