@@ -3,7 +3,7 @@ from aiogram.dispatcher import Dispatcher
 
 from bot.config import TRAINING_CODE
 from bot.database import add_training
-from keyboards.menus import training_menu
+from bot.keyboards.menus import training_menu
 
 import datetime
 
