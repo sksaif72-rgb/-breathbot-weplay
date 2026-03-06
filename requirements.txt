@@ -2,3 +2,4 @@ aiogram==2.25.1
 asyncpg
 python-dotenv
 pytz
+aiohttp
