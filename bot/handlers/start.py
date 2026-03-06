@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import Dispatcher
 
 from bot.database import add_user
-from keyboards.menus import main_menu
+from bot.keyboards.menus import main_menu
 
 
 async def start(message: types.Message):
