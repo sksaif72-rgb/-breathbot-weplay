@@ -53,7 +53,12 @@ async def on_startup(dp):
 await connect_db()
 await create_tables()
 
-    print("Starting web server...")
+    if __name__ == "__main__":
+    print("Starting bot...")
+    application.run_polling()
+
+print("Starting web server...")
+app.run(host="0.0.0.0", port=10000)
     asyncio.create_task(start_web_server())
 
     print("Bot started successfully")
