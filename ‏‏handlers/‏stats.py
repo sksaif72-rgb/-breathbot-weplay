@@ -1,30 +1,34 @@
-from aiogram import Router
-from aiogram.types import CallbackQuery
+from aiogram import types
+from aiogram.dispatcher import Dispatcher
 
-from bot.database import pool
-
-router = Router()
+from bot.database import get_stats
 
 
-@router.callback_query(lambda c: c.data == "stats")
-async def stats(callback: CallbackQuery):
+async def stats(message: types.Message):
 
-    async with pool.acquire() as conn:
+    await message.answer("اكتب رقم الورقة مثال: 7")
 
-        rows = await conn.fetch(
-            """
-            SELECT card,type,COUNT(*) as c
-            FROM training_data
-            GROUP BY card,type
-            ORDER BY c DESC
-            LIMIT 10
-            """
-        )
 
-    text = "اكثر البيانات المسجلة:\n\n"
+async def stats_card(message: types.Message):
+
+    card = message.text
+
+    rows = await get_stats(card)
+
+    text = "📊 الاحصائيات\n\n"
 
     for r in rows:
 
-        text += f"{r['card']} {r['type']} : {r['c']}\n"
+        text += f"{r['suit']} - {r['hand_type']} : {r['c']}\n"
 
-    await callback.message.answer(text)
+    await message.answer(text)
+
+
+def register(dp: Dispatcher):
+
+    dp.register_message_handler(
+        stats,
+        lambda m: m.text == "📊 احصائيات"
+    )
+
+    dp.register_message_handler(stats_card)
