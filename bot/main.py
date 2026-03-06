@@ -1,87 +1,37 @@
-import asyncio
 import logging
-import os
 
-from aiogram import Bot, Dispatcher
-from aiogram.utils import executor
-
-from aiohttp import web
+from telegram.ext import ApplicationBuilder
 
 from bot.config import BOT_TOKEN
-from bot.database import connect_db
-
 from bot.handlers import start, guess, training, stats, admin
 
-logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(bot)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
-
-# -----------------------
-# WEB SERVER FOR RENDER
-# -----------------------
-
-async def health(request):
-    return web.Response(text="BREATHBOT RUNNING")
+logger = logging.getLogger(__name__)
 
 
-async def start_web_server():
-    port = int(os.environ.get("PORT", 10000))
-
-    app = web.Application()
-    app.router.add_get("/", health)
-
-    runner = web.AppRunner(app)
-    await runner.setup()
-
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-
-    print(f"Web server started on port {port}")
-
-
-# -----------------------
-# STARTUP
-# -----------------------
-
-async def on_startup(dp):
-
-    print("Connecting database...")
-    from bot.database import connect_db, create_tables
-
-await connect_db()
-await create_tables()
-
-    if __name__ == "__main__":
+def main():
     print("Starting bot...")
+
+    # إنشاء التطبيق
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    # تسجيل الهاندلرز
+    application.add_handler(start.start_handler)
+    application.add_handler(guess.guess_handler)
+    application.add_handler(training.training_handler)
+    application.add_handler(stats.stats_handler)
+    application.add_handler(admin.admin_handler)
+
+    print("Bot is running...")
+    
+    # تشغيل البوت
     application.run_polling()
 
-print("Starting web server...")
-app.run(host="0.0.0.0", port=10000)
-    asyncio.create_task(start_web_server())
-
-    print("Bot started successfully")
-
-
-# -----------------------
-# REGISTER HANDLERS
-# -----------------------
-
-dp.include_router(start.router)
-dp.include_router(guess.router)
-dp.include_router(training.router)
-dp.include_router(stats.router)
-dp.include_router(admin.router)
-
-# -----------------------
-# MAIN
-# -----------------------
 
 if __name__ == "__main__":
-
-    executor.start_polling(
-        dp,
-        skip_updates=True,
-        on_startup=on_startup
-    )
+    main()
