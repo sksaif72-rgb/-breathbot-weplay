@@ -52,3 +52,12 @@ def left_attacks():
         ["لاشيء"]
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+def next_predict():
+    from telegram import ReplyKeyboardMarkup
+
+    keyboard = [
+        ["🔮 التخمين التالي"],
+        ["🏠 القائمة الرئيسية"]
+    ]
+
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
