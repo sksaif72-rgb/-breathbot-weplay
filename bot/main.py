@@ -1,30 +1,34 @@
-from telegram.ext import ApplicationBuilder
+from telegram.ext import Updater
 
 from bot.config import BOT_TOKEN
 
-from bot.handlers import start
-from bot.handlers import guess
-from bot.handlers import training
-from bot.handlers import stats
-from bot.handlers import admin
+# handlers
+from bot.handlers.start import register_start_handlers
+from bot.handlers.subscription import register_subscription_handlers
+from bot.handlers.training import register_training_handlers
+from bot.handlers.stats import register_stats_handlers
+from bot.handlers.predict import register_predict_handlers
 
 
-async def main():
+def main():
 
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    updater = Updater(BOT_TOKEN, use_context=True)
 
-    start.register(application)
-    guess.register(application)
-    training.register(application)
-    stats.register(application)
-    admin.register(application)
+    dispatcher = updater.dispatcher
 
-    print("BREATHBOT-Weplay started")
+    # تسجيل الهاندلرز
+    register_start_handlers(dispatcher)
+    register_subscription_handlers(dispatcher)
+    register_training_handlers(dispatcher)
+    register_stats_handlers(dispatcher)
+    register_predict_handlers(dispatcher)
 
-    await application.run_polling()
+    print("BREATHBOT-Weplay started...")
+
+    updater.start_polling()
+
+    updater.idle()
 
 
 if __name__ == "__main__":
-
-    import asyncio
-    asyncio.run(main())
+    main()
