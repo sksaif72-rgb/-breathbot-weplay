@@ -1,29 +1,30 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 
 def main_menu():
 
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = [
+        [
+            KeyboardButton("🎯 تخمين"),
+            KeyboardButton("📊 احصائيات")
+        ]
+    ]
 
-    kb.add(
-        KeyboardButton("🎯 تخمين"),
-        KeyboardButton("📊 احصائيات")
+    return ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True
     )
-
-    return kb
 
 
 def training_menu():
 
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = [
+        [KeyboardButton("AA"), KeyboardButton("اربعة")],
+        [KeyboardButton("فل هاوس"), KeyboardButton("زوج")],
+        [KeyboardButton("متتالية"), KeyboardButton("لا شيء")]
+    ]
 
-    kb.add(
-        KeyboardButton("AA"),
-        KeyboardButton("اربعة"),
-        KeyboardButton("فل هاوس"),
-        KeyboardButton("زوج"),
-        KeyboardButton("متتالية"),
-        KeyboardButton("لا شيء")
+    return ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True
     )
-
-    return kb
